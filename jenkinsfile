@@ -5,8 +5,13 @@ pipeline {
     stages {
         stage('Build Maven'){
             steps {
+<<<<<<< HEAD
                 sh 'pwd'
                 sh 'mvn clean install package'
+=======
+                 sh 'pwd'
+                 sh 'mvn clean install package'
+>>>>>>> cc608d97065996284d6b501cc16ca42d6c1e2ee4
             }
         }
     }
