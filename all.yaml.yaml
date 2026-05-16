@@ -551,7 +551,7 @@ Yahan aap jaise engineers ka role shuru hota hai.
 | **ERM (Enterprise Risk Case Manager)** | Poore bank ke risk ko ek jagah track karne ke liye. |
 | **UDM (Unified Data Model)** | Alag-alag sources se aaye data ko ek standard format mein lane ke liye. |
 
-AIS>>>>UDM>>>>Actone>>>ERM
+
 
 ### Interview Ke Liye Ek Practical Point:
 Jab aap NICE Actimize ke support ke baare mein batayein, toh ye zaroor kahein:
@@ -570,220 +570,247 @@ User -> Route 53 -> WAF -> ALB -> API Gateway -> Microservices (EKS) -> Redis/RD
 
 ======================================================================================================================================
 
+
+NICE FLOW DIAGRAM:
+
+Source Systems
+      ↓
+UDM (Data Standardization)
+      ↓
+AIS (Fraud/AML Detection)
+      ↓
+ActOne (Investigation & Cases)
+      ↓
+ERM (Enterprise Risk Monitoring)
+
+================================================================================================================
+
 Interview style Architecture:
 
+=====================================================================================================
+# NICE Actimize Financial Crime Architecture
 
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                 FINANCIAL CRIME DETECTION PLATFORM (AWS CLOUD)                     │
-│                          Real-Time AML & Fraud Detection                            │
-└──────────────────────────────────────────────────────────────────────────────────────┘
+## 4-Component High Level Architecture Diagram
+
+```text id="actimize-4-component"
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                NICE ACTIMIZE – FINANCIAL CRIME PLATFORM                           │
+│                         High Level Architecture                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
 
 
- ┌──────────────────────────────────────────────────────────────────────────────────┐
- │                             CHANNELS & SOURCE SYSTEMS                           │
- ├──────────────────────────────────────────────────────────────────────────────────┤
- │ Core Banking │ Cards │ SWIFT │ Mobile Banking │ Internet Banking │ CRM │ KYC  │
- └──────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                              SOURCE SYSTEMS                                        │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  Core Banking │ SWIFT │ Credit Cards │ Internet Banking │ CRM │ KYC │ AML Feeds  │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+                                         │
                                          │
                                          ▼
 
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                           INGESTION & EVENT STREAMING                              │
-├──────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                      │
-│   API Gateway      Amazon Kinesis        Amazon MSK (Kafka)        AWS Lambda       │
-│                                                                                      │
-│   • Real-time APIs • Streaming events   • High throughput         • Validation      │
-│   • External APIs  • Fraud feeds        • Event buffering         • Transformation  │
-│                                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                    UDM (Unified Data Model)                                        │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  Purpose:                                                                          │
+│  • Multiple banking systems se data collect karna                                 │
+│  • Data normalization & transformation                                             │
+│  • Standard enterprise format maintain karna                                       │
+│                                                                                    │
+│  Functions:                                                                        │
+│  • ETL / Data Mapping                                                              │
+│  • Customer 360 View                                                               │
+│  • Transaction Standardization                                                     │
+│  • Historical Data Repository                                                      │
+│                                                                                    │
+│  AWS Services (Optional):                                                          │
+│  S3 │ Glue │ Redshift │ DynamoDB                                                   │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
                                          │
+                                         │ Standardized Data
                                          ▼
 
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                                DATA PLATFORM LAYER                                  │
-├──────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                      │
-│  Amazon S3 Data Lake                                                                │
-│  ┌────────────┬─────────────┬──────────────┬─────────────────┐                      │
-│  │ Raw Zone  │ Cleansed    │ Curated Zone │ Feature Store   │                      │
-│  └────────────┴─────────────┴──────────────┴─────────────────┘                      │
-│                                                                                      │
-│  Amazon Redshift                 DynamoDB                    Lake Formation          │
-│  Historical Analytics            Low-latency lookup          Governance & RBAC      │
-│                                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                AIS (Actimize Intelligence Server)                                  │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  Purpose:                                                                          │
+│  • Real-time AML/Fraud transaction monitoring                                      │
+│  • Rule execution engine                                                           │
+│  • Suspicious activity detection                                                   │
+│                                                                                    │
+│  Core Capabilities:                                                                │
+│  • AML Rules                                                                       │
+│  • Threshold Monitoring                                                            │
+│  • Pattern Detection                                                               │
+│  • Risk Scoring                                                                    │
+│  • Real-time Alert Generation                                                      │
+│                                                                                    │
+│  Integrations:                                                                     │
+│  • ML Models                                                                       │
+│  • Sanctions Screening                                                             │
+│  • Watchlists                                                                      │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
                                          │
+                                         │ Alerts / Cases
                                          ▼
 
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                           PROCESSING & ANALYTICS                                    │
-├──────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                      │
-│ AWS Glue ETL         Amazon EMR (Spark)         Kinesis Analytics                   │
-│ Batch Processing     Big Data Processing        Real-Time Stream Processing         │
-│                                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────┘
-                                         │
-                                         ▼
 
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                        FINANCIAL CRIME DETECTION ENGINE                              │
-├──────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                      │
-│ ┌────────────────────┐    ┌────────────────────┐    ┌─────────────────────────┐     │
-│ │ AML Rules Engine   │    │ ML Fraud Models    │    │ Behavioral Analytics    │     │
-│ │ Threshold Rules    │    │ SageMaker          │    │ User Activity Patterns  │     │
-│ └─────────┬──────────┘    └─────────┬──────────┘    └────────────┬────────────┘     │
-│           │                         │                            │                  │
-│           └─────────────────────────┴────────────────────────────┘                  │
-│                                         │                                            │
-│                              Amazon Neptune Graph DB                                │
-│                         Account Link Analysis / Mule Detection                       │
-│                                         │                                            │
-│                                         ▼                                            │
-│                              Real-Time Risk Scoring                                  │
-│                                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────┘
-                                         │
-                        ┌────────────────┴────────────────┐
-                        ▼                                 ▼
-
-┌──────────────────────────────────────┐   ┌────────────────────────────────────────┐
-│        ALERT & INVESTIGATION         │   │          REPORTING & DASHBOARDS        │
-├──────────────────────────────────────┤   ├────────────────────────────────────────┤
-│                                      │   │                                        │
-│ Amazon OpenSearch                    │   │ Amazon QuickSight                      │
-│ Case Management                      │   │ Executive Dashboards                   │
-│ Investigator Workbench               │   │ AML KPIs                               │
-│ SNS / SQS Notifications              │   │ Regulatory Reports                     │
-│ Step Functions Workflow              │   │ Suspicious Activity Reports (SAR)      │
-│                                      │   │                                        │
-└──────────────────────────────────────┘   └────────────────────────────────────────┘
+              ┌────────────────────────────────────────────────────┐
+              │                                                    │
+              ▼                                                    ▼
 
 
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                         SECURITY, COMPLIANCE & OPERATIONS                           │
-├──────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                      │
-│ IAM │ KMS │ CloudTrail │ GuardDuty │ Macie │ Security Hub │ AWS Config             │
-│                                                                                      │
-│ VPC Isolation │ Private Subnets │ WAF │ Multi-AZ │ Backup │ Disaster Recovery      │
-│                                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐   ┌─────────────────────────────────────────┐
+│        ActOne (Visual Investigator)          │   │      ERM (Enterprise Risk Manager)      │
+├──────────────────────────────────────────────┤   ├─────────────────────────────────────────┤
+│                                              │   │                                         │
+│ Purpose:                                     │   │ Purpose:                                │
+│ • AML analysts ka investigation UI           │   │ • Enterprise-wide risk monitoring       │
+│ • Alert review & case management             │   │ • Cross-channel risk visibility         │
+│ • Suspicious transaction analysis            │   │ • Risk aggregation                      │
+│                                              │   │                                         │
+│ Features:                                    │   │ Features:                               │
+│ • Alert Dashboard                            │   │ • Enterprise Risk Dashboard             │
+│ • Case Workflow                              │   │ • Risk Scoring                          │
+│ • SAR/STR Management                         │   │ • Compliance Reporting                  │
+│ • Investigator Notes                         │   │ • Audit & Governance                    │
+│ • Escalation Workflow                        │   │ • KPI Tracking                          │
+│                                              │   │                                         │
+│ Users:                                       │   │ Users:                                  │
+│ • AML Analysts                               │   │ • Compliance Team                       │
+│ • Fraud Investigators                        │   │ • CRO / Risk Officers                   │
+│ • Compliance Officers                        │   │ • Senior Management                     │
+│                                              │   │                                         │
+└──────────────────────────────────────────────┘   └─────────────────────────────────────────┘
 
 
-========================================================================================================================================
 
-Architecure Level Diagram: General:
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                       SECURITY & GOVERNANCE                                         │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ IAM │ Encryption │ Audit Logs │ Compliance │ RBAC │ Monitoring │ DR/Backup         │
+└────────────────────────────────────────────────────────────────────────────────────┘
+```
 
-┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                              FINANCIAL CRIME PLATFORM                                      │
-│                                   AWS CLOUD ARCHITECTURE                                  │
-└─────────────────────────────────────────────────────────────────────────────────────────────┘
+---
+
+# Simple Flow Explanation (Interview Friendly)
+
+## Step 1 — Source Systems
+
+Bank ke multiple systems se transactions aur customer data aata hai.
+
+Examples:
+
+* Core banking
+* Cards
+* SWIFT
+* Internet banking
+
+---
+
+## Step 2 — UDM (Unified Data Model)
+
+UDM ka kaam:
+
+* Different formats ko standard format mein convert karna
+* Customer aur transaction ka unified view banana
+* Clean & normalized data AIS ko dena
+
+---
+
+## Step 3 — AIS (Actimize Intelligence Server)
+
+AIS:
+
+* Real-time transactions process karta hai
+* AML/Fraud rules apply karta hai
+* Suspicious activity detect karta hai
+* Alerts generate karta hai
+
+Example:
+
+* High-value transfer
+* Structuring
+* Multiple failed logins
+* Sanction hit
+
+---
+
+## Step 4 — ActOne (Visual Investigator)
+
+Analyst yaha:
+
+* Alerts investigate karta hai
+* Case manage karta hai
+* SAR file karta hai
+* Escalation karta hai
+
+Ye basically investigator ka UI hai.
+
+---
+
+## Step 5 — ERM (Enterprise Risk Manager)
+
+ERM:
+
+* Entire bank ka risk view maintain karta hai
+* Enterprise level dashboards provide karta hai
+* Compliance & governance reporting karta hai
+
+Senior management yaha monitoring karta hai.
+
+---
+
+# Interview One-Line Summary
+
+> “UDM standardize karta hai data ko, AIS fraud/AML detect karta hai, ActOne investigation aur case management handle karta hai, aur ERM enterprise-wide risk monitoring provide karta hai.”
+
+---
+
+# Solution Architect Discussion Points
+
+## Why Separate UDM?
+
+* Loose coupling
+* Reusable enterprise data layer
+* Better scalability
+
+## Why AIS Separate?
+
+* High-performance rule engine
+* Real-time detection
+
+## Why ActOne?
+
+* Dedicated investigator workflow
+* Better analyst productivity
+
+## Why ERM?
+
+* Centralized enterprise risk visibility
+* Regulatory reporting
+
+---
+
+# Optional AWS Mapping
+
+| Actimize Component | AWS Equivalent          |
+| ------------------ | ----------------------- |
+| UDM                | S3 + Glue + Redshift    |
+| AIS                | Kinesis + Lambda + EMR  |
+| ActOne             | OpenSearch + UI Layer   |
+| ERM                | QuickSight + Governance |
 
 
-┌──────────────────────────────┐
-│      EXTERNAL SYSTEMS        │
-├──────────────────────────────┤
-│ • Core Banking               │
-│ • Credit Card Systems        │
-│ • SWIFT / Payments           │
-│ • KYC & CRM                  │
-│ • Mobile Banking             │
-│ • Sanctions / Watchlists     │
-└──────────────┬───────────────┘
-               │
-               ▼
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         INGESTION & INTEGRATION LAYER                      │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   ┌─────────────┐   ┌─────────────┐   ┌──────────────┐   ┌──────────────┐  │
-│   │ API Gateway │   │ Kinesis     │   │ Amazon MSK  │   │ AWS Lambda  │  │
-│   │             │   │ Data Streams│   │ (Kafka)     │   │ Transform    │  │
-│   └──────┬──────┘   └──────┬──────┘   └──────┬──────┘   └──────┬──────┘  │
-│          │                 │                 │                 │           │
-└──────────┴─────────────────┴─────────────────┴─────────────────┴───────────┘
-                                   │
-                                   ▼
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           DATA LAKE & STORAGE                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│      ┌──────────────────────────────────────────────────────────────┐       │
-│      │                 Amazon S3 Data Lake                         │       │
-│      │-------------------------------------------------------------│       │
-│      │ • Raw Zone                                                  │       │
-│      │ • Cleansed Zone                                             │       │
-│      │ • Curated Zone                                              │       │
-│      │ • ML Feature Store                                          │       │
-│      └──────────────────────────────────────────────────────────────┘       │
-│                                                                             │
-│      ┌───────────────┐      ┌────────────────┐      ┌────────────────┐     │
-│      │ Amazon        │      │ DynamoDB      │      │ Lake Formation │     │
-│      │ Redshift      │      │ Real-Time KV  │      │ Governance     │     │
-│      └───────────────┘      └────────────────┘      └────────────────┘     │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          DATA PROCESSING LAYER                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌───────────────┐   ┌────────────────┐   ┌──────────────────────────┐     │
-│  │ AWS Glue ETL │   │ Amazon EMR     │   │ Kinesis Data Analytics   │     │
-│  │ Batch Jobs   │   │ Spark Cluster  │   │ Real-Time Analytics      │     │
-│  └──────┬────────┘   └────────┬───────┘   └─────────────┬────────────┘     │
-│         │                     │                         │                  │
-└─────────┴─────────────────────┴─────────────────────────┴──────────────────┘
-                                   │
-                                   ▼
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    FINANCIAL CRIME DETECTION ENGINE                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│ ┌──────────────────────┐   ┌──────────────────────┐                        │
-│ │ AML Rules Engine     │   │ Fraud Detection ML   │                        │
-│ │ Threshold Monitoring │   │ Amazon SageMaker     │                        │
-│ └──────────┬───────────┘   └──────────┬───────────┘                        │
-│            │                          │                                    │
-│ ┌──────────▼───────────┐   ┌──────────▼───────────┐                        │
-│ │ Behavioral Analytics │   │ Graph Analysis       │                        │
-│ │ Customer Risk Score  │   │ Amazon Neptune       │                        │
-│ └──────────┬───────────┘   └──────────┬───────────┘                        │
-│            └──────────────┬───────────┘                                    │
-│                           ▼                                                │
-│                 ┌──────────────────────┐                                   │
-│                 │ Real-Time Risk Score │                                   │
-│                 └──────────────────────┘                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                   │
-               ┌───────────────────┴────────────────────┐
-               ▼                                        ▼
-
-┌─────────────────────────────────────┐   ┌─────────────────────────────────┐
-│      ALERT & CASE MANAGEMENT        │   │      REPORTING & ANALYTICS      │
-├─────────────────────────────────────┤   ├─────────────────────────────────┤
-│ • Amazon OpenSearch                 │   │ • Amazon QuickSight             │
-│ • AWS Step Functions                │   │ • Compliance Dashboards         │
-│ • SNS / SQS Alerts                  │   │ • SAR / STR Reports             │
-│ • Investigator Workflow             │   │ • Regulatory Reporting          │
-└─────────────────────────────────────┘   └─────────────────────────────────┘
-
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      SECURITY & GOVERNANCE LAYER                           │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  IAM   │   KMS Encryption   │   CloudTrail   │   GuardDuty   │   Macie    │
-│                                                                             │
-│                 VPC • Private Subnets • Security Groups                    │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-======================================================================================================================
+===================================================================================================================================
 
